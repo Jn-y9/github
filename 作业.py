@@ -76,3 +76,35 @@ df_processed[numeric_columns] = scaler.fit_transform(df_processed[numeric_column
 
 print("\n处理后的数据集：")
 print(df_processed.head())
+
+# 划分特征和目标变量
+X = df_processed.drop(['Low Price', 'High Price', 'Mostly Low', 'Mostly High'], axis=1)
+y_low = df_processed['Low Price']
+y_high = df_processed['High Price']
+y_mostly_low = df_processed['Mostly Low']
+y_mostly_high = df_processed['Mostly High']
+
+# 划分训练集和测试集
+X_train, X_test, y_train_low, y_test_low = train_test_split(X, y_low, test_size=0.2, random_state=42)
+X_train, X_test, y_train_high, y_test_high = train_test_split(X, y_high, test_size=0.2, random_state=42)
+X_train, X_test, y_train_mostly_low, y_test_mostly_low = train_test_split(X, y_mostly_low, test_size=0.2, random_state=42)
+X_train, X_test, y_train_mostly_high, y_test_mostly_high = train_test_split(X, y_mostly_high, test_size=0.2, random_state=42)
+
+# 线性回归模型
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train_low)
+y_pred_lr = lr_model.predict(X_test)
+
+# 随机森林回归模型
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train_low)
+y_pred_rf = rf_model.predict(X_test)
+
+# 评估模型
+print("\n线性回归模型评估：")
+print(f"均方误差: {mean_squared_error(y_test_low, y_pred_lr)}")
+print(f"R²分数: {r2_score(y_test_low, y_pred_lr)}")
+
+print("\n随机森林回归模型评估：")
+print(f"均方误差: {mean_squared_error(y_test_low, y_pred_rf)}")
+print(f"R²分数: {r2_score(y_test_low, y_pred_rf)}")
