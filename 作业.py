@@ -41,8 +41,8 @@ missing_ratio = df_selected.isnull().sum() / len(df_selected)
 print("\n各列缺失值比例：")
 print(missing_ratio)
 
-# 删除缺失值过多的列（缺失值比例>30%）
-columns_to_drop = missing_ratio[missing_ratio > 0.3].index
+# 删除缺失值过多的列（缺失值比例>50%）
+columns_to_drop = missing_ratio[missing_ratio > 0.5].index
 df_processed = df_selected.drop(columns=columns_to_drop)
 
 # 填充剩余缺失值
@@ -108,3 +108,16 @@ print(f"R²分数: {r2_score(y_test_low, y_pred_lr)}")
 print("\n随机森林回归模型评估：")
 print(f"均方误差: {mean_squared_error(y_test_low, y_pred_rf)}")
 print(f"R²分数: {r2_score(y_test_low, y_pred_rf)}")
+
+# 特征重要性分析（随机森林）
+feature_importance = pd.DataFrame({
+    'feature': X.columns,
+    'importance': rf_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='importance', y='feature', data=feature_importance)
+plt.title('特征重要性')
+plt.xlabel('重要性')
+plt.ylabel('特征')
+plt.show()
