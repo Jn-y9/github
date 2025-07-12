@@ -121,3 +121,35 @@ plt.title('特征重要性')
 plt.xlabel('重要性')
 plt.ylabel('特征')
 plt.show()
+
+# 恢复原始价格数据以便可视化
+df_original = df_selected.copy()
+df_original['Date'] = pd.to_datetime(df_original['Date'], errors='coerce')
+
+# 按月份分组分析价格分布
+df_original['Month'] = df_original['Date'].dt.month
+monthly_prices = df_original.groupby('Month')[['Low Price', 'High Price']].mean()
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='Month', y='Low Price', data=df_original)
+plt.title('不同月份的南瓜最低价格分布')
+plt.xlabel('月份')
+plt.ylabel('最低价格')
+plt.show()
+
+# 按品种分析平均价格
+variety_prices = df_original.groupby('Variety')[['Low Price', 'High Price']].mean().sort_values('Low Price', ascending=False).head(10)
+
+# 创建一个图形
+plt.figure(figsize=(14, 8))
+variety_prices.plot(kind='bar', color=['#FFA07A', '#20B2AA'], ax=plt.gca())
+
+# 设置标题和标签
+plt.title('不同品种的平均价格', fontsize=16)
+plt.xlabel('品种', fontsize=12)
+plt.ylabel('平均价格 (元)', fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.legend(['最低价格', '最高价格'], fontsize=12)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
