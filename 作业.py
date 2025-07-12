@@ -87,3 +87,50 @@ df_processed[numeric_columns] = scaler.fit_transform(df_processed[numeric_column
 
 print("\n改进后的处理数据集：")
 print(df_processed.head())
+
+# 选择目标变量
+target = 'Low Price'
+
+# 特征与目标
+X = df_processed.drop(columns=target_columns)
+y = df_processed[target]
+
+# 划分训练集和测试集
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+import time
+
+# 模型列表
+models = {
+    'Linear Regression': LinearRegression(),
+    'Ridge Regression': Ridge(alpha=1.0),
+    'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
+    'XGBoost': XGBRegressor(random_state=42, eval_metric='rmse')
+}
+
+# 结果存储
+results = {}
+
+for name, model in models.items():
+    start = time.time()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    results[name] = {
+        'MSE': mse,
+        'R2': r2,
+        'Time': time.time() - start
+    }
+
+# 打印结果
+results_df = pd.DataFrame(results).T
+print("\n模型性能对比：")
+print(results_df.sort_values(by='R2', ascending=False))
